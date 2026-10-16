@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compra Rápida</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f4f1ea;
+      color: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      padding: 60px 20px;
+      margin: 0;
+    }
+    .caja {
+      background: #fff;
+      border-radius: 10px;
+      padding: 32px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .subtitulo { color: #6b6b6b; font-size: 13px; margin: 0 0 24px; }
+    .fila {
+      display: flex;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+    .fila:last-of-type { border-bottom: none; font-weight: 600; }
+    button {
+      width: 100%;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 22px;
+    }
+    button:hover { background: #333; }
+    .aviso {
+      border-radius: 6px;
+      padding: 13px 15px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .ok { background: #e6f4ea; color: #1e6b34; }
+    .mal { background: #fdeceb; color: #a52a1f; }
+    a { color: #6b6b6b; font-size: 13px; display: block; margin-top: 18px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="caja">
+    {% if mensaje_exito %}
+      <div class="aviso ok">
+        Compra exitosa. Total cobrado: ${{ mensaje_exito }}
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="aviso mal">{{ error }}</div>
+    {% endif %}
+
+    {% if libro %}
+      <h1>Compra Rápida</h1>
+      <p class="subtitulo">Un clic, sin carrito ni dirección de envío.</p>
+
+      <div class="fila">
+        <span>Libro</span>
+        <span>{{ libro.titulo }}</span>
+      </div>
+      <div class="fila">
+        <span>Precio base</span>
+        <span>${{ libro.precio }}</span>
+      </div>
+      <div class="fila">
+        <span>Total con IVA</span>
+        <span>${{ total }}</span>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit">Comprar ya</button>
+      </form>
+    {% else %}
+      <a href="/">Volver</a>
+    {% endif %}
+  </div>
+</body>
+</html>

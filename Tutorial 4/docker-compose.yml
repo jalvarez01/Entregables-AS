@@ -1,0 +1,47 @@
+# Tutorial 04: Django + PostgreSQL en contenedores.
+# Prueba local: docker compose up --build  ->  http://localhost:8000/api/v1/comprar/
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15
+    volumes:
+      # Persistencia: los datos sobreviven si se apaga el contenedor
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=tienda_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret_password
+    healthcheck:
+      # Django no debe arrancar hasta que Postgres acepte conexiones;
+      # si no, las migraciones fallan en el primer arranque.
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tienda_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # API Django
+  web:
+    build: .
+    # Migra, carga los libros de prueba (solo si la base está vacía) y arranca.
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py cargar_demo &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      # Hot-reload: los cambios de código se reflejan sin reconstruir
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_NAME=tienda_db
+      - DB_USER=postgres
+      - DB_PASSWORD=secret_password
+      - DB_HOST=db  # Nombre del servicio definido arriba
+      - DB_PORT=5432
+
+volumes:
+  postgres_data:
