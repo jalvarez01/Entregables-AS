@@ -1,0 +1,58 @@
+# Tutorial 06: el monolito (v1) y el microservicio estrangulador (v2) conviven
+# detrás de Nginx.
+# /api/v1/...        -> web_django  (Django + Gunicorn)
+# /api/v2/comprar    -> pagos_flask (Flask + Gunicorn)
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=tienda_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tienda_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  web_django:  # El monolito (v1)
+    build: .
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             python manage.py cargar_demo &&
+             gunicorn Tienda.wsgi:application --bind 0.0.0.0:8000 --workers 2 --access-logfile -"
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_NAME=tienda_db
+      - DB_USER=postgres
+      - DB_PASSWORD=secret_password
+      - DB_HOST=db
+      - DB_PORT=5432
+
+  pagos_flask:  # El microservicio (v2) - EL ESTRANGULADOR
+    build: ./microservicio_pagos
+    # El tutorial publica el 5000 solo para pruebas iniciales. Se deja cerrado:
+    # a Flask se llega únicamente a través de Nginx, igual que a Django.
+    # ports:
+    #   - "5000:5000"
+
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web_django
+      - pagos_flask
+
+volumes:
+  postgres_data:

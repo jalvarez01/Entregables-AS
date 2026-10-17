@@ -1,0 +1,5 @@
+Django>=4.2,<5.0
+djangorestframework>=3.14
+psycopg2-binary>=2.9
+gunicorn>=21.2      # servidor WSGI de producción (Tutorial 05)
+whitenoise>=6.5     # sirve los estáticos de Django sin runserver
