@@ -1,5 +1,5 @@
 # Tutorial 05: arquitectura de tres capas.
-#   Internet -> Nginx (80) -> Gunicorn/Django (8000, solo red interna) -> PostgreSQL
+# Internet -> Nginx (80) -> Gunicorn/Django (8000, solo red interna) -> PostgreSQL
 # Prueba local: docker compose up --build  ->  http://localhost/api/v1/comprar/
 
 services:
