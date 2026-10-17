@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f4f1ea; color: #1a1a1a;
+           margin: 0; padding: 48px 20px; display: flex; justify-content: center; }
+    .caja { background: #fff; border-radius: 10px; padding: 28px 32px; max-width: 620px; width: 100%;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .sub { color: #6b6b6b; font-size: 13px; margin: 0 0 22px; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+         color: #6b6b6b; border-bottom: 2px solid #1a1a1a; padding: 8px 6px; }
+    td { padding: 11px 6px; border-bottom: 1px solid #eee; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .bajo { color: #a52a1f; font-weight: 600; }
+    .vacio { color: #6b6b6b; text-align: center; padding: 24px; }
+  </style>
+</head>
+<body>
+  <div class="caja">
+    <h1>Inventario</h1>
+    <p class="sub">Stock actual. Se actualiza con compras hechas por la web o por la API.</p>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Libro</th><th class="num">Precio</th><th class="num">Stock</th></tr>
+      </thead>
+      <tbody>
+        {% for libro in libros %}
+          <tr>
+            <td>{{ libro.id }}</td>
+            <td>{{ libro.titulo }}</td>
+            <td class="num">${{ libro.precio }}</td>
+            <td class="num {% if libro.stock <= 3 %}bajo{% endif %}">{{ libro.stock }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="vacio">No hay libros cargados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
